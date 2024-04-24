@@ -4,9 +4,11 @@
   },
   "name": "a-rendezvous-with-death",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:electron": "electron .",
+    "start": "npm run build:vue && electron .",
+    "build:vue": "cd front-end && npm run build"
   },
   "repository": {
     "type": "git",
