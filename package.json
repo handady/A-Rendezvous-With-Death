@@ -1,6 +1,7 @@
 {
   "devDependencies": {
-    "electron": "^30.0.1"
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3"
   },
   "name": "a-rendezvous-with-death",
   "version": "1.0.0",
@@ -8,7 +9,38 @@
   "scripts": {
     "start:electron": "electron .",
     "start": "npm run build:vue && electron .",
-    "build:vue": "cd front-end && npm run build"
+    "build:vue": "cd front-end && npm run build",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.example.arendezvouswithdeath",
+    "productName": "A Rendezvous With Death",
+    "directories": {
+      "output": "dist"
+    },
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+    "files": [
+      "**/*",
+      "front-end/dist/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icons"
+    }
   },
   "repository": {
     "type": "git",
