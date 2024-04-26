@@ -40,6 +40,14 @@
         "deb"
       ],
       "icon": "build/icons"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": false,
+      "shortcutName": "A Rendezvous With Death"
     }
   },
   "repository": {
