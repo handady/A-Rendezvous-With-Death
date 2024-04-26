@@ -1,51 +1,87 @@
 <template>
   <div id="index">
-    <div class="center-line"></div>
+    <div
+      class="center-line"
+      :style="{
+        top: topDistance + 'px',
+        height: `calc(100% - ${topDistance}px)`,
+      }"
+    ></div>
     <div
       class="timeline"
-      :style="{ height: diameter + 'px', width: diameter + 'px' }"
+      :style="{
+        height: dotDiameter + 'px',
+        width: dotDiameter + 'px',
+        top: topDistance + 'px',
+      }"
     >
       <div
         class="circle"
-        :style="{ height: diameter + 'px', width: diameter + 'px' }"
+        :style="{ height: dotDiameter + 'px', width: dotDiameter + 'px' }"
       ></div>
-      <CircleDots :items="items" :radius="radius" :dotSize="dotSize" />
+      <CircleDots :items="items" :radius="dotRadius" :dotSize="dotSize" />
+      <CircleContent :items="items" :radius="contentRadius" />
     </div>
+    <LineDots
+      :items="lineItems"
+      :radius="lineRadius"
+      :dotSize="dotSize"
+      :topDistance="contentDiameter + topDistance"
+    />
   </div>
 </template>
 
 <script>
 import { reactive, toRefs, computed } from "vue";
 import CircleDots from "./components/dot-circle.vue";
+import CircleContent from "./components/content-circle.vue";
+import LineDots from "./components/dot-line.vue";
 
 export default {
   name: "index",
   components: {
     CircleDots,
+    CircleContent,
+    LineDots,
   },
   setup() {
+    // 初始化数据
     const state = reactive({
       items: [
-        { color: "rgba(255,105,180)" },
-        { color: "green" },
-        { color: "blue" },
-        { color: "red" },
-        { color: "green" },
-        { color: "blue" },
-        { color: "red" },
-        { color: "green" },
-        { color: "blue" },
-        { color: "red" },
-        { color: "green" },
-        { color: "blue" },
+        { color: "rgba(255,105,180)", time: "2019-11-01", content: "content1" },
+        { color: "green", time: "2019-11-02", content: "content2" },
+        { color: "blue", time: "2019-11-03", content: "content3" },
+        { color: "red", time: "2019-11-04", content: "content4" },
+        { color: "green", time: "2019-11-05", content: "content5" },
+        { color: "blue", time: "2019-11-06", content: "content6" },
+        { color: "red", time: "2019-11-07", content: "content7" },
+        { color: "green", time: "2019-11-08", content: "content8" },
+        { color: "blue", time: "2019-11-09", content: "content9" },
+        { color: "red", time: "2019-11-10", content: "content10" },
+        { color: "green", time: "2019-11-11", content: "content11" },
+        { color: "blue", time: "2019-11-12", content: "content12" },
       ],
-      diameter: 240,
-      dotSize: 12,
+      lineItems: [
+        { color: "rgba(255,105,180)", time: "2019-11-01", content: "content1" },
+        { color: "green", time: "2019-11-02", content: "content2" },
+        { color: "blue", time: "2019-11-03", content: "content3" },
+        { color: "red", time: "2019-11-04", content: "content4" },
+        { color: "green", time: "2019-11-05", content: "content5" },
+        { color: "blue", time: "2019-11-06", content: "content6" },
+        { color: "red", time: "2019-11-07", content: "content7" },
+      ],
+      dotDiameter: 240, // 圆点直径
+      contentDiameter: 330, // 内容直径
+      dotSize: 12, // 圆点大小
+      topDistance: 70, // 顶部间距
     });
 
-    const radius = computed(() => state.diameter / 2);
+    // 圆点半径
+    const dotRadius = computed(() => state.dotDiameter / 2);
+    // 内容半径
+    const contentRadius = computed(() => state.contentDiameter / 2);
 
-    return { ...toRefs(state), radius };
+    return { ...toRefs(state), dotRadius, contentRadius };
   },
 };
 </script>
@@ -60,15 +96,12 @@ export default {
 
   .center-line {
     width: 2px;
-    height: calc(100% - 20px);
-    margin-top: 20px;
     background-color: #c2b29a;
     position: absolute;
   }
 
   .timeline {
     position: relative;
-    margin-top: 20px;
 
     .circle {
       border-radius: 50%;
