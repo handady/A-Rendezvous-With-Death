@@ -5,7 +5,7 @@
       class="dot-container"
       :style="{
         top: `${topDistance}px`,
-        height: `calc(100% - ${topDistance}px)`,
+        height: `calc(95% - ${topDistance}px)`,
       }"
     >
       <div
@@ -34,9 +34,19 @@
 </template>
 
 <script>
-import { computed, reactive, toRefs, onMounted, onUnmounted } from "vue";
+import {
+  computed,
+  reactive,
+  toRefs,
+  onMounted,
+  onUnmounted,
+  ref,
+  defineComponent,
+  nextTick,
+} from "vue";
+import { throttle } from "lodash";
 
-export default {
+export default defineComponent({
   name: "LineDots",
   props: {
     items: {
@@ -56,48 +66,73 @@ export default {
       default: 100,
     },
   },
-  setup(props) {
+  emits: ["updateItems"],
+  setup(props, { emit }) {
     const state = reactive({
       dotSpacing: 50,
     });
-
+    // 容器
+    const container = ref(null);
+    // 计算圆点的半径
     const dotRadius = computed(() => props.dotSize / 2);
 
-    const prependItems = () => {
-      // 这里模拟添加新数据到数组顶部
-      const newItem = {
-        color: "blue",
-        content: "新增内容",
-        time: new Date().toLocaleTimeString(),
-      };
-      // 发送数据到父组件
-      //   this.$emit("prependItems", newItem);
+    const prependItems = async () => {
+      // 获取当前的 scrollTop 和 scrollHeight
+      const oldScrollTop = container.value.scrollTop;
+      const oldScrollHeight = container.value.scrollHeight;
+
+      // 模拟新数据
+      const newItems = [
+        {
+          id: Date.now(),
+          content: "New item at " + new Date().toLocaleTimeString(),
+        },
+        ...props.items,
+      ];
+
+      // 更新数据
+      emit("updateItems", newItems);
+
+      // 等待 DOM 更新
+      await nextTick();
+      // element-ui怎么修改placeholder的颜色
+
+      // 调整滚动条，保持原有视图位置
+      container.value.scrollTop =
+        oldScrollTop + (container.value.scrollHeight - oldScrollHeight);
     };
 
     // 滚动到底部
     const scrollToBottom = () => {
-      const container = document.querySelector("#line-dots .dot-container");
-      container.scrollTop = container.scrollHeight;
-    };
-
-    const checkScroll = () => {
-      const container = document.querySelector("#line-dots .dot-container");
-      console.log("container.scrollTop", container.scrollTop);
-      if (container.scrollTop <= 10) {
-        // 这里可以触发加载更多内容的方法
-        console.log("Reached Top");
+      if (container.value) {
+        container.value.scrollTop = container.value.scrollHeight;
       }
     };
 
+    const checkScroll = () => {
+      if (container.value) {
+        console.log("container.scrollTop", container.value.scrollTop);
+        if (container.value.scrollTop === 0) {
+          console.log("Reached Top");
+          prependItems();
+        }
+      }
+    };
+
+    const throttledCheckScroll = throttle(checkScroll, 100);
+
     onMounted(() => {
-      scrollToBottom(); // 初始滚动到底部
-      const container = document.querySelector("#line-dots .dot-container");
-      container.addEventListener("scroll", checkScroll);
+      container.value = document.querySelector("#line-dots .dot-container");
+      if (container.value) {
+        container.value.addEventListener("scroll", throttledCheckScroll);
+        scrollToBottom(); // 初始滚动到底部
+      }
     });
 
     onUnmounted(() => {
-      const container = document.querySelector("#line-dots .dot-container");
-      container.removeEventListener("scroll", checkScroll);
+      if (container.value) {
+        container.value.removeEventListener("scroll", throttledCheckScroll);
+      }
     });
 
     return {
@@ -105,16 +140,22 @@ export default {
       ...toRefs(state),
     };
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>
 #line-dots {
   .dot-container {
     position: absolute;
-    left: -5px;
-    width: 100%;
+    left: calc(50% - 5px);
+    transform: translateX(-50%);
+    width: 30%;
     overflow-y: scroll;
+    scrollbar-width: none; /* Firefox 浏览器隐藏滚动条 */
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome、Safari 和 Opera 浏览器隐藏滚动条 */
+    }
 
     .dot {
       position: absolute;

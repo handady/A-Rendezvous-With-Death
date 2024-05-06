@@ -1,66 +1,62 @@
-<!-- CircleDots.vue -->
 <template>
   <div class="dot-container">
     <div
       v-for="(item, index) in items"
       :key="index"
       class="dot"
-      :style="{
-        backgroundColor: item.color,
-        width: `${dotSize}px`,
-        height: `${dotSize}px`,
-        transform: `translateX(${
-          radius * Math.cos((index * 30 * Math.PI) / 180) - dotSize / 2
-        }px) translateY(${
-          radius * Math.sin((index * 30 * Math.PI) / 180) - dotSize / 2
-        }px)`,
-      }"
+      :style="dotStyle(item, index)"
     ></div>
   </div>
 </template>
 
-<script>
-import { computed } from "vue";
-
-export default {
-  name: "CircleDots",
-  props: {
-    items: {
-      type: Array,
-      required: true,
-    },
-    radius: {
-      type: Number,
-      required: true,
-    },
-    dotSize: {
-      type: Number,
-      default: 10,
-    },
+<script setup>
+const props = defineProps({
+  items: {
+    type: Array,
+    required: true,
   },
-  setup(props) {
-    const dotRadius = computed(() => props.dotSize / 2);
-
-    return {
-      dotRadius,
-    };
+  radius: {
+    type: Number,
+    required: true,
   },
+  dotSize: {
+    type: Number,
+    default: 10,
+  },
+  circleAngle: {
+    type: Number,
+    default: 0,
+  },
+});
+
+// 计算每个点的位置
+const dotStyle = (item, index) => {
+  const radian = ((props.circleAngle + index * 30) * Math.PI) / 180;
+  const x = props.radius * Math.cos(radian) - props.dotSize / 2;
+  const y = props.radius * Math.sin(radian) - props.dotSize / 2;
+  return {
+    backgroundColor: item.color,
+    width: `${props.dotSize}px`,
+    height: `${props.dotSize}px`,
+    transform: `translate(${x}px, ${y}px)`,
+  };
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .dot-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: relative;
+  width: 300px;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
-  .dot {
-    position: absolute;
-    border-radius: 50%;
-    left: 50%;
-    top: 50%;
-  }
+.dot {
+  position: absolute;
+  border-radius: 50%;
+  top: -30%;
+  left: 50%;
 }
 </style>

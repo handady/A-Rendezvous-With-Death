@@ -19,14 +19,24 @@
         class="circle"
         :style="{ height: dotDiameter + 'px', width: dotDiameter + 'px' }"
       ></div>
-      <CircleDots :items="items" :radius="dotRadius" :dotSize="dotSize" />
-      <CircleContent :items="items" :radius="contentRadius" />
+      <CircleDots
+        :items="items"
+        :radius="dotRadius"
+        :dotSize="dotSize"
+        :circleAngle="circleAngle"
+      />
+      <CircleContent
+        :items="items"
+        :radius="contentRadius"
+        :circleAngle="circleAngle"
+      />
     </div>
     <LineDots
       :items="lineItems"
       :radius="lineRadius"
       :dotSize="dotSize"
       :topDistance="contentDiameter + topDistance"
+      @updateItems="updateItems"
     />
   </div>
 </template>
@@ -69,11 +79,14 @@ export default {
         { color: "green", time: "2019-11-05", content: "content5" },
         { color: "blue", time: "2019-11-06", content: "content6" },
         { color: "red", time: "2019-11-07", content: "content7" },
+        { color: "green", time: "2019-11-08", content: "content8" },
+        { color: "blue", time: "2019-11-09", content: "content9" },
       ],
       dotDiameter: 240, // 圆点直径
       contentDiameter: 330, // 内容直径
       dotSize: 12, // 圆点大小
       topDistance: 70, // 顶部间距
+      circleAngle: 0, // 圆环旋转角度
     });
 
     // 圆点半径
@@ -81,7 +94,12 @@ export default {
     // 内容半径
     const contentRadius = computed(() => state.contentDiameter / 2);
 
-    return { ...toRefs(state), dotRadius, contentRadius };
+    // 更新数据
+    const updateItems = (item) => {
+      state.lineItems = [...state.lineItems, ...state.lineItems];
+    };
+
+    return { ...toRefs(state), dotRadius, contentRadius, updateItems };
   },
 };
 </script>
