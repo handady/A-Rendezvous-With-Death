@@ -120,6 +120,7 @@ export default defineComponent({
       // 调整滚动条，保持原有视图位置
       container.value.scrollTop =
         oldScrollTop + (container.value.scrollHeight - oldScrollHeight);
+      scrollStartY.value = container.value.scrollTop;
     };
 
     // 滚动到底部
@@ -135,10 +136,9 @@ export default defineComponent({
         const scrollHeight = container.value.scrollHeight;
         const clientHeight = container.value.clientHeight;
         const distanceToBottom = scrollHeight - currentScrollTop - clientHeight;
-
         emit("scrollDistance", distanceToBottom); // 发送距离底部的距离到父组件
 
-        if (currentScrollTop === 0) {
+        if (currentScrollTop <= 50) {
           isLoading = true;
           prependItems().then(() => {
             isLoading = false;
@@ -147,7 +147,7 @@ export default defineComponent({
       }
     };
 
-    const throttledCheckScroll = throttle(checkScroll, 50);
+    const throttledCheckScroll = throttle(checkScroll, 20);
 
     onMounted(() => {
       container.value = document.querySelector("#line-dots .dot-container");
@@ -184,12 +184,12 @@ export default defineComponent({
     transform: translateX(-50%);
     width: 30%;
     overflow-y: scroll;
-    // scrollbar-width: none; /* Firefox 浏览器隐藏滚动条 */
+    scrollbar-width: none; /* Firefox 浏览器隐藏滚动条 */
     cursor: pointer;
 
-    // &::-webkit-scrollbar {
-    //   display: none; /* Chrome、Safari 和 Opera 浏览器隐藏滚动条 */
-    // }
+    &::-webkit-scrollbar {
+      display: none; /* Chrome、Safari 和 Opera 浏览器隐藏滚动条 */
+    }
 
     .dot {
       position: absolute;
