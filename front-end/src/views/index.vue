@@ -33,10 +33,11 @@
     </div>
     <LineDots
       :items="lineItems"
-      :radius="lineRadius"
       :dotSize="dotSize"
       :topDistance="contentDiameter + topDistance"
+      :dotSpacing="dotSpacing"
       @updateItems="updateItems"
+      @scrollDistance="handleScrollDistance"
     />
   </div>
 </template>
@@ -87,19 +88,38 @@ export default {
       dotSize: 12, // 圆点大小
       topDistance: 70, // 顶部间距
       circleAngle: 0, // 圆环旋转角度
+      dotSpacing: 50, // 圆点间距
     });
 
     // 圆点半径
     const dotRadius = computed(() => state.dotDiameter / 2);
     // 内容半径
     const contentRadius = computed(() => state.contentDiameter / 2);
+    // 每个像素转的角度
+    const degreesPerPixel = computed(
+      () => 30 / (state.dotSize + state.dotSpacing)
+    );
 
     // 更新数据
     const updateItems = (item) => {
       state.lineItems = [...state.lineItems, ...state.lineItems];
     };
 
-    return { ...toRefs(state), dotRadius, contentRadius, updateItems };
+    // 滚动距离
+    const handleScrollDistance = (distance) => {
+      console.log("distance", distance);
+      // 计算旋转角度 62px转30度
+      const angle = distance * degreesPerPixel.value;
+      state.circleAngle = angle;
+    };
+
+    return {
+      ...toRefs(state),
+      dotRadius,
+      contentRadius,
+      updateItems,
+      handleScrollDistance,
+    };
   },
 };
 </script>
@@ -111,6 +131,7 @@ export default {
   justify-content: center;
   height: 100%;
   overflow: hidden;
+  user-select: none;
 
   .center-line {
     width: 2px;
