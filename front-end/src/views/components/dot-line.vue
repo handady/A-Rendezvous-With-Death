@@ -40,6 +40,7 @@ import {
   toRefs,
   onMounted,
   onUnmounted,
+  watch,
   ref,
   defineComponent,
   nextTick,
@@ -102,18 +103,6 @@ export default defineComponent({
       const oldScrollTop = container.value.scrollTop;
       const oldScrollHeight = container.value.scrollHeight;
 
-      // 模拟新数据
-      const newItems = [
-        {
-          id: Date.now(),
-          content: "New item at " + new Date().toLocaleTimeString(),
-        },
-        ...props.items,
-      ];
-
-      // 更新数据
-      emit("updateItems", newItems);
-
       // 等待 DOM 更新
       await nextTick();
 
@@ -121,13 +110,6 @@ export default defineComponent({
       container.value.scrollTop =
         oldScrollTop + (container.value.scrollHeight - oldScrollHeight);
       scrollStartY.value = container.value.scrollTop;
-    };
-
-    // 滚动到底部
-    const scrollToBottom = () => {
-      if (container.value) {
-        container.value.scrollTop = container.value.scrollHeight;
-      }
     };
 
     const checkScroll = () => {
@@ -153,7 +135,6 @@ export default defineComponent({
       container.value = document.querySelector("#line-dots .dot-container");
       if (container.value) {
         container.value.addEventListener("scroll", throttledCheckScroll);
-        scrollToBottom(); // 初始滚动到底部
         container.value.addEventListener("mousedown", onMouseDown);
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
@@ -168,6 +149,23 @@ export default defineComponent({
         window.removeEventListener("mouseup", onMouseUp);
       }
     });
+
+    // 滚动到底部
+    const scrollToBottom = () => {
+      if (container.value) {
+        container.value.scrollTop = container.value.scrollHeight;
+      }
+    };
+
+    // 监听items变化
+    watch(
+      () => props.items,
+      (newItems) => {
+        if (newItems.length > 0) {
+          scrollToBottom(); // 初始滚动到底部
+        }
+      }
+    );
 
     return {
       dotRadius,

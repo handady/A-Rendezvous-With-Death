@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const url = require("url");
+const { setupIpcHandlers } = require("./electron/ipcHandlers");
 
 function createWindow() {
   // 创建浏览器窗口
@@ -8,8 +9,9 @@ function createWindow() {
     width: 1440,
     height: 900,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: path.join(__dirname, "/electron/preload.js"),
+      contextIsolation: true, // 保持开启状态
+      nodeIntegration: false, // 保持禁用状态
     },
   });
 
@@ -36,7 +38,10 @@ function createWindow() {
 
 // Electron 会在初始化后并准备创建浏览器窗口时，调用这个函数。
 // 部分 API 在 ready 事件触发后才能使用。
-app.on("ready", createWindow);
+app.on("ready", function () {
+  createWindow();
+  setupIpcHandlers(app);
+});
 
 // 当全部窗口关闭时退出。
 app.on("window-all-closed", function () {
