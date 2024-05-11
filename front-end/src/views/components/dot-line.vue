@@ -6,6 +6,7 @@
       :style="{
         top: `${topDistance}px`,
         height: `calc(95% - ${topDistance}px)`,
+        paddingTop: `${dotSize}px`,
       }"
     >
       <div
@@ -109,7 +110,7 @@ export default defineComponent({
       // 调整滚动条，保持原有视图位置
       container.value.scrollTop =
         oldScrollTop + (container.value.scrollHeight - oldScrollHeight);
-      scrollStartY.value = container.value.scrollTop;
+      // scrollStartY.value = container.value.scrollTop;
     };
 
     const checkScroll = () => {
@@ -162,7 +163,9 @@ export default defineComponent({
       () => props.items,
       (newItems) => {
         if (newItems.length > 0) {
-          scrollToBottom(); // 初始滚动到底部
+          nextTick(() => {
+            scrollToBottom(); // 初始滚动到底部
+          });
         }
       }
     );
