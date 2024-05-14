@@ -40,6 +40,11 @@
       @scrollDistance="handleScrollDistance"
     />
     <sider @addCollection="addCollection" />
+    <add
+      :dialogVisible="dialogVisible"
+      @closeDialog="closeDialog"
+      @addCardSuccess="addCardSuccess"
+    ></add>
   </div>
 </template>
 
@@ -49,6 +54,7 @@ import CircleDots from "./components/dot-circle.vue";
 import CircleContent from "./components/content-circle.vue";
 import LineDots from "./components/dot-line.vue";
 import sider from "@/components/common/sider.vue";
+import add from "@/components/common/add.vue";
 
 export default {
   name: "index",
@@ -57,6 +63,7 @@ export default {
     CircleContent,
     LineDots,
     sider,
+    add,
   },
   setup() {
     // 初始化数据
@@ -82,6 +89,7 @@ export default {
       topDistance: 70, // 顶部间距
       circleAngle: 0, // 圆环旋转角度
       dotSpacing: 50, // 圆点间距
+      dialogVisible: false, // 弹窗状态
     });
 
     // 圆点半径
@@ -105,6 +113,18 @@ export default {
       state.circleAngle = angle;
     };
 
+    // 弹窗-------------------------------------------------
+    // 打开弹窗
+    const addCollection = () => {
+      console.log("addCollection");
+      state.dialogVisible = true;
+    };
+    const closeDialog = () => {
+      state.dialogVisible = false;
+    };
+    const addCardSuccess = () => {
+      console.log("addCardSuccess");
+    }
     // 初始化
     const loadData = () => {
       // window.electronAPI.send("loadData");
@@ -143,6 +163,9 @@ export default {
       contentRadius,
       updateItems,
       handleScrollDistance,
+      addCollection,
+      closeDialog,
+      addCardSuccess,
     };
   },
 };

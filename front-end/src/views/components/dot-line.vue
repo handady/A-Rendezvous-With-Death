@@ -6,7 +6,6 @@
       :style="{
         top: `${topDistance}px`,
         height: `calc(95% - ${topDistance}px)`,
-        paddingTop: `${dotSize}px`,
       }"
     >
       <div

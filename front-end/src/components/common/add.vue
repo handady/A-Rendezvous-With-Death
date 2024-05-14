@@ -1,0 +1,193 @@
+<template>
+  <div id="add">
+    <el-dialog
+      v-model="dialogVisibleChild"
+      :show-close="false"
+      draggable
+      width="40%"
+      :before-close="closeDialog"
+    >
+      <div class="content">
+        <img src="../../assets/images/add.jpg" alt="" />
+        <div class="addForm">
+          <el-form ref="addForm" :model="formData" label-position="top">
+            <!-- 按钮 -->
+            <el-form-item class="btnBox">
+              <el-button class="closeBtn" @click="closeDialog">关闭</el-button>
+              <el-button class="resetBtn" @click="reset">重置</el-button>
+              <el-button class="submitBtn" @click="onSubmit">提交</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { reactive, ref, watch } from "vue";
+import { ElMessage } from "element-plus";
+
+export default {
+  name: "add",
+  props: {
+    dialogVisible: {
+      //弹窗状态
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup(props, { emit }) {
+    const dialogVisibleChild = ref(false);
+    //获取当前时间方法
+    function GetDateTime() {
+      var getDate = new Date();
+      let dateYear = getDate.getFullYear(); //获取年
+      let dateMonth = getDate.getMonth() + 1; //获取月
+      let dateDate = getDate.getDate(); //获取当日
+      let dateHours = getDate.getHours(); //获取小时
+      let dateMinutes = getDate.getMinutes(); //获取分钟
+      let dateSeconds = getDate.getSeconds(); //获取秒
+      dateMonth = dateMonth < 10 ? "0" + dateMonth : dateMonth;
+      dateDate = dateDate < 10 ? "0" + dateDate : dateDate;
+      dateHours = dateHours < 10 ? "0" + dateHours : dateHours;
+      dateMinutes = dateMinutes < 10 ? "0" + dateMinutes : dateMinutes;
+      dateSeconds = dateSeconds < 10 ? "0" + dateSeconds : dateSeconds;
+      return (
+        dateYear +
+        "-" +
+        dateMonth +
+        "-" +
+        dateDate +
+        " " +
+        dateHours +
+        ":" +
+        dateMinutes +
+        ":" +
+        dateSeconds
+      );
+    }
+    //表单数据
+    const formData = reactive({
+      title: "",
+      content: "",
+      createDate: "",
+    });
+    //关闭表单弹窗
+    const closeDialog = () => {
+      emit("closeDialog", false);
+    };
+    //重置表单
+    const reset = () => {
+      formData.name = "";
+      formData.class = "";
+      formData.description = "";
+      formData.type = "";
+      formData.creator = "";
+      formData.rate = "";
+    };
+    //提交表单数据
+    const onSubmit = () => {
+      ElMessage({
+        showClose: true,
+        message: "卡片添加成功！",
+        type: "success",
+        center: true,
+      });
+      reset();
+      closeDialog();
+      emit("addCardSuccess");
+    };
+
+    watch(
+      () => props.dialogVisible,
+      (val) => {
+        dialogVisibleChild.value = val;
+      }
+    );
+
+    return {
+      closeDialog,
+      formData,
+      onSubmit,
+      reset,
+      dialogVisibleChild,
+    };
+  },
+  emits: ["closeDialog"],
+};
+</script>
+
+<style scoped>
+:deep(.el-dialog) {
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 0;
+}
+:deep(.el-dialog__body) {
+  padding: 0;
+}
+:deep(.el-dialog__header) {
+  position: absolute;
+  width: calc(100% - 40px);
+}
+:deep(.el-form-item__label) {
+  color: #fff;
+  font-size: 16px;
+}
+:deep(.btnBox .el-form-item__content) {
+  display: flex;
+  justify-content: space-between;
+}
+:deep(.el-textarea__inner) {
+  height: 70px;
+}
+.content {
+  background-image: url("../../assets/images/add.jpg");
+  background-size: 125%;
+  background-repeat: no-repeat;
+  background-position: 25% 40%;
+}
+.content img {
+  width: 100%;
+  visibility: hidden;
+}
+.addForm {
+  /* background-color: red; */
+  position: absolute;
+  width: calc(100% - 80px);
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0 40px;
+}
+.submitBtn {
+  background-color: #fec2d6;
+  border: 0;
+  font-family: "heiseqingren";
+  width: 30%;
+}
+.submitBtn:hover {
+  background-color: #f5347f;
+  color: white;
+}
+.resetBtn {
+  background-color: #fffacd;
+  border: 0;
+  font-family: "heiseqingren";
+  width: 30%;
+}
+.resetBtn:hover {
+  background-color: #ffd700;
+  color: white;
+}
+.closeBtn {
+  background-color: #bfefff;
+  border: 0;
+  font-family: "heiseqingren";
+  width: 30%;
+}
+.closeBtn:hover {
+  background-color: #00bfff;
+  color: white;
+}
+</style>
