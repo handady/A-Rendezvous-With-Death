@@ -1,7 +1,7 @@
 <template>
-  <div class="vditor-element">
+  <div class="vditor-element" ref="vditorElementRef">
     <div v-if="isEditing" @dblclick.stop>
-      <div :id="vditorId" class="vditor"></div>
+      <div :id="vditorId" class="vditor" ref="vditorRef"></div>
     </div>
     <div v-else class="draggable" ref="previewContainer"></div>
   </div>
@@ -11,6 +11,7 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import Vditor from "vditor";
 import "vditor/dist/index.css";
+import { transform } from "lodash";
 
 export default {
   props: {
@@ -26,9 +27,11 @@ export default {
   setup(props, { emit }) {
     const isEditing = ref(false);
     const vditor = ref(null);
+    const vditorRef = ref(null);
     const editableContent = ref(props.content);
     const vditorId = ref(props.data.date);
     const previewContainer = ref(null);
+    const vditorElementRef = ref(null);
 
     const initVditor = async () => {
       await nextTick();
@@ -41,6 +44,7 @@ export default {
         cache: { id: "vditor" },
         value: editableContent.value,
         after: () => {
+          updateVditorSize();
           console.log("Editor is ready");
         },
         blur: () => {
@@ -82,10 +86,10 @@ export default {
     };
 
     const updateVditorSize = () => {
-      if (previewContainer.value && vditor.value) {
-        const newWidth = previewContainer.value.offsetWidth - 10;
-        const newHeight = previewContainer.value.offsetHeight - 10;
-        const vditorElement = document.querySelector(".vditor");
+      if (vditorElementRef.value && vditorRef.value) {
+        const newWidth = vditorElementRef.value.offsetWidth - 20;
+        const newHeight = vditorElementRef.value.offsetHeight - 20;
+        const vditorElement = vditorRef.value;
         if (vditorElement) {
           vditorElement.style.width = `${newWidth}px`;
           vditorElement.style.height = `${newHeight}px`;
@@ -100,8 +104,8 @@ export default {
       resizeObserver = new ResizeObserver(() => {
         updateVditorSize();
       });
-      if (previewContainer.value) {
-        resizeObserver.observe(previewContainer.value);
+      if (vditorElementRef.value) {
+        resizeObserver.observe(vditorElementRef.value);
       }
     });
 
@@ -109,8 +113,8 @@ export default {
       if (vditor.value) {
         vditor.value.destroy();
       }
-      if (resizeObserver && previewContainer.value) {
-        resizeObserver.unobserve(previewContainer.value);
+      if (resizeObserver && vditorElementRef.value) {
+        resizeObserver.unobserve(vditorElementRef.value);
       }
     });
 
@@ -123,6 +127,8 @@ export default {
       vditorId,
       previewContainer,
       handleBlur,
+      vditorElementRef,
+      vditorRef,
     };
   },
 };
@@ -133,9 +139,13 @@ export default {
   padding: 10px;
 }
 
+:deep(.vditor-reset) {
+  width: 100%;
+  height: 100%;
+}
+
 .vditor {
   width: 100%;
   height: 100%;
-  background-color: red;
 }
 </style>

@@ -98,6 +98,7 @@ export default {
 
     const updateContent = (index, newContent) => {
       htmlElements.value[index].content = newContent;
+      console.log(htmlElements.value);
     };
 
     const { proxy } = getCurrentInstance();

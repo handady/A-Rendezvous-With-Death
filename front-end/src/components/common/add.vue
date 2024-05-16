@@ -170,9 +170,11 @@ export default {
   background-size: 125%;
   background-repeat: no-repeat;
   background-position: 25% 40%;
+  position: relative;
 }
 .content img {
   width: 100%;
+  height: 100%;
   visibility: hidden;
 }
 .addForm {
