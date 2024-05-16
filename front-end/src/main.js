@@ -11,5 +11,15 @@ import "./assets/font/font.css";
 // 导入element-plus
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
+// 导入库
+import draggable from "@/utils/draggable.ts";
+import VueKonva from 'vue-konva';
+import 'vditor/dist/index.css';
 
-createApp(App).use(ElementPlus).use(store).use(router).mount("#app");
+createApp(App)
+  .use(ElementPlus)
+  .use(store)
+  .use(router)
+  .use(VueKonva)
+  .directive("draggable", draggable)
+  .mount("#app");

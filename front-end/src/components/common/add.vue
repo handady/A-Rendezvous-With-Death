@@ -4,13 +4,17 @@
       v-model="dialogVisibleChild"
       :show-close="false"
       draggable
-      width="40%"
+      width="50%"
       :before-close="closeDialog"
     >
-      <div class="content">
+      <div class="content" ref="canvasRef">
         <img src="../../assets/images/add.jpg" alt="" />
         <div class="addForm">
           <el-form ref="addForm" :model="formData" label-position="top">
+            <Canvas
+              :dialogWidth="dialogWidth"
+              :dialogHeight="dialogHeight"
+            ></Canvas>
             <!-- 按钮 -->
             <el-form-item class="btnBox">
               <el-button class="closeBtn" @click="closeDialog">关闭</el-button>
@@ -25,11 +29,15 @@
 </template>
 
 <script>
-import { reactive, ref, watch } from "vue";
+import { nextTick, reactive, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
+import Canvas from "./Canvas.vue";
 
 export default {
   name: "add",
+  components: {
+    Canvas,
+  },
   props: {
     dialogVisible: {
       //弹窗状态
@@ -39,6 +47,9 @@ export default {
   },
   setup(props, { emit }) {
     const dialogVisibleChild = ref(false);
+    const canvasRef = ref(null); //dialog的引用
+    const dialogWidth = ref(0); //dialog的宽
+    const dialogHeight = ref(0); //dialog的高
     //获取当前时间方法
     function GetDateTime() {
       var getDate = new Date();
@@ -103,6 +114,15 @@ export default {
       () => props.dialogVisible,
       (val) => {
         dialogVisibleChild.value = val;
+        if (val) {
+          nextTick(() => {
+            const dialog = canvasRef.value;
+            if (dialog) {
+              dialogWidth.value = dialog.offsetWidth;
+              dialogHeight.value = (dialog.offsetWidth * 810) / 1345;
+            }
+          });
+        }
       }
     );
 
@@ -112,6 +132,9 @@ export default {
       onSubmit,
       reset,
       dialogVisibleChild,
+      canvasRef,
+      dialogWidth,
+      dialogHeight,
     };
   },
   emits: ["closeDialog"],
