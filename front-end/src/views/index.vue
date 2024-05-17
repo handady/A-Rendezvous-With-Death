@@ -38,10 +38,12 @@
       :dotSpacing="dotSpacing"
       @updateItems="updateItems"
       @scrollDistance="handleScrollDistance"
+      @clickItem="handleClickItem"
     />
     <sider @addCollection="addCollection" />
     <add
       :dialogVisible="dialogVisible"
+      :currentItem="currentItem"
       @closeDialog="closeDialog"
       @addCardSuccess="addCardSuccess"
     ></add>
@@ -82,7 +84,8 @@ export default {
         { color: "green", time: "2019-11-11", content: "content11" },
         { color: "blue", time: "2019-11-12", content: "content12" },
       ],
-      lineItems: [],
+      lineItems: [], // 线条里面的数据
+      currentItem: {}, // 当前选中的数据
       dotDiameter: 240, // 圆点直径
       contentDiameter: 330, // 内容直径
       dotSize: 12, // 圆点大小
@@ -124,7 +127,14 @@ export default {
     };
     const addCardSuccess = () => {
       console.log("addCardSuccess");
-    }
+    };
+
+    // 当前选中的数据
+    const handleClickItem = (item) => {
+      state.currentItem = item;
+      addCollection();
+    };
+
     // 初始化
     const loadData = () => {
       // window.electronAPI.send("loadData");
@@ -135,17 +145,54 @@ export default {
         state.lineItems = [
           {
             color: "rgba(255,105,180)",
-            time: "2019-11-01",
-            content: "content1",
+            title: "测试标题1",
+            time: "2020-01-02 00:00:00",
+            htmlElements: [
+              {
+                content: "标题1",
+                date: "2020-01-01 00:00:00",
+                style: {
+                  position: "absolute",
+                  top: "200px",
+                  left: "50px",
+                  width: "400px",
+                  height: "128px",
+                  minHeight: "128px",
+                },
+              },
+              {
+                content: "",
+                date: "2020-01-02 00:00:00",
+                style: {
+                  position: "absolute",
+                  top: "300px",
+                  left: "150px",
+                  width: "300px",
+                  height: "128px",
+                  minHeight: "128px",
+                },
+              },
+            ],
           },
-          { color: "green", time: "2019-11-02", content: "content2" },
-          { color: "blue", time: "2019-11-03", content: "content3" },
-          { color: "red", time: "2019-11-04", content: "content4" },
-          { color: "green", time: "2019-11-05", content: "content5" },
-          { color: "blue", time: "2019-11-06", content: "content6" },
-          { color: "red", time: "2019-11-07", content: "content7" },
-          { color: "green", time: "2019-11-08", content: "content8" },
-          { color: "blue", time: "2019-11-09", content: "content9" },
+          {
+            color: "green",
+            title: "测试标题2",
+            time: "2020-01-03 00:00:00",
+            htmlElements: [
+              {
+                content: "标题二",
+                date: "2020-01-01 00:00:00",
+                style: {
+                  position: "absolute",
+                  top: "200px",
+                  left: "50px",
+                  width: "400px",
+                  height: "128px",
+                  minHeight: "128px",
+                },
+              },
+            ],
+          },
         ];
       }, 1000);
     };
@@ -166,6 +213,7 @@ export default {
       addCollection,
       closeDialog,
       addCardSuccess,
+      handleClickItem,
     };
   },
 };

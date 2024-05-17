@@ -1,13 +1,7 @@
 <template>
   <div class="canvas-container">
-    <v-stage :config="config">
-      <v-layer>
-        <v-rect
-          v-for="(rect, index) in rects"
-          :key="index"
-          :config="rect.config"
-        />
-      </v-layer>
+    <v-stage :config="config" @dblclick="addHtmlElement">
+      <v-layer> </v-layer>
     </v-stage>
     <!-- HTML 叠加层 -->
     <div class="html-overlay">
@@ -29,16 +23,16 @@
 
 <script>
 import { ref, getCurrentInstance, watch } from "vue";
-import { Stage, Layer, Rect } from "vue-konva";
+import { Stage, Layer } from "vue-konva";
 import draggable from "@/utils/draggable.ts";
 import VditorElement from "./VditorElement.vue";
+import { cloneDeep } from "lodash";
 
 export default {
   name: "Canvas",
   components: {
     "v-stage": Stage,
     "v-layer": Layer,
-    "v-rect": Rect,
     VditorElement,
   },
   props: {
@@ -50,6 +44,14 @@ export default {
       type: Number,
       default: 0,
     },
+    currentHtmlElements: {
+      type: Array,
+      default: () => [],
+    },
+    currentItem: {
+      type: Object,
+      default: () => ({}),
+    }
   },
   directives: {
     draggable,
@@ -60,48 +62,25 @@ export default {
       height: props.dialogHeight,
     });
 
-    const rects = ref([
-      {
-        config: {
-          x: 20,
-          y: 20,
-          width: 100,
-          height: 100,
-          fill: "red",
-          draggable: true,
-        },
-      },
-    ]);
+    const htmlElements = ref(cloneDeep(props.currentHtmlElements));
 
-    const htmlElements = ref([
-      {
-        content: "",
-        date: "2020-01-01 00:00:00",
-        style: {
-          position: "absolute",
-          top: "200px",
-          left: "50px",
-          width: "400px",
-        },
-      },
-      {
-        content: "",
-        date: "2020-01-02 00:00:00",
-        style: {
-          position: "absolute",
-          top: "300px",
-          left: "150px",
-          width: "300px",
-        },
-      },
-    ]);
+    let newHtmlElement = cloneDeep(htmlElements.value);
+
+    const { proxy } = getCurrentInstance();
 
     const updateContent = (index, newContent) => {
       htmlElements.value[index].content = newContent;
-      console.log(htmlElements.value);
+      const child = proxy.$refs[htmlElements.value[index].date][0];
+      // 获取child的样式，宽高,transform,top,left
+      if (child) {
+        newHtmlElement[index].style.width = child.$el.style.width;
+        newHtmlElement[index].style.height = child.$el.style.height;
+        newHtmlElement[index].style.top = child.$el.style.top;
+        newHtmlElement[index].style.left = child.$el.style.left;
+        newHtmlElement[index].style.transform = child.$el.style.transform;
+      }
+      console.log(newHtmlElement);
     };
-
-    const { proxy } = getCurrentInstance();
 
     const editContent = (refValue) => {
       const child = proxy.$refs[refValue][0];
@@ -110,15 +89,62 @@ export default {
       }
     };
 
+    function formatDate(date) {
+      const pad = (num) => String(num).padStart(2, "0");
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hours = pad(date.getHours());
+      const minutes = pad(date.getMinutes());
+      const seconds = pad(date.getSeconds());
+
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    // 添加元素
+    const addHtmlElement = (event) => {
+      const { offsetX, offsetY } = event.evt;
+      const newElement = {
+        content: "",
+        date: formatDate(new Date()), // 使用自定义的格式化函数
+        style: {
+          position: "absolute",
+          top: `${offsetY}px`,
+          left: `${offsetX}px`,
+          width: "200px",
+          height: "128px",
+          minHeight: "128px",
+        },
+      };
+      htmlElements.value.push(newElement);
+      newHtmlElement = cloneDeep(htmlElements.value); // 更新深拷贝副本
+    };
+
+    // 保存元素
+    const saveCanvas = () => {
+      let newCurrentItem = cloneDeep(props.currentItem);
+      newCurrentItem.htmlElements = newHtmlElement;
+      console.log("saveCanvas", newCurrentItem);
+    };
+
     watch(
-      () => [props.dialogWidth, props.dialogHeight],
-      ([newWidth, newHeight]) => {
+      () => [props.dialogWidth, props.dialogHeight, props.currentHtmlElements],
+      ([newWidth, newHeight, newElements]) => {
         config.value.width = newWidth;
         config.value.height = newHeight - 40;
-      }
+        htmlElements.value = cloneDeep(newElements);
+      },
+      { immediate: true, deep: true }
     );
 
-    return { config, rects, htmlElements, updateContent, editContent };
+    return {
+      config,
+      htmlElements,
+      updateContent,
+      editContent,
+      addHtmlElement,
+      saveCanvas,
+    };
   },
 };
 </script>

@@ -11,7 +11,6 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import Vditor from "vditor";
 import "vditor/dist/index.css";
-import { transform } from "lodash";
 
 export default {
   props: {

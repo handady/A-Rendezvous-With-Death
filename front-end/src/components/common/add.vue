@@ -14,12 +14,16 @@
             <Canvas
               :dialogWidth="dialogWidth"
               :dialogHeight="dialogHeight"
+              :key="canvasKey"
+              :currentHtmlElements="currentItem.htmlElements"
+              :currentItem="currentItem"
+              ref="canvasChildRef"
             ></Canvas>
             <!-- 按钮 -->
             <el-form-item class="btnBox">
               <el-button class="closeBtn" @click="closeDialog">关闭</el-button>
               <el-button class="resetBtn" @click="reset">重置</el-button>
-              <el-button class="submitBtn" @click="onSubmit">提交</el-button>
+              <el-button class="submitBtn" @click="onSubmit">保存</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -29,7 +33,7 @@
 </template>
 
 <script>
-import { nextTick, reactive, ref, watch } from "vue";
+import { nextTick, reactive, ref, watch, getCurrentInstance } from "vue";
 import { ElMessage } from "element-plus";
 import Canvas from "./Canvas.vue";
 
@@ -44,40 +48,21 @@ export default {
       type: Boolean,
       default: false,
     },
+    currentItem: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
   },
   setup(props, { emit }) {
     const dialogVisibleChild = ref(false);
     const canvasRef = ref(null); //dialog的引用
     const dialogWidth = ref(0); //dialog的宽
     const dialogHeight = ref(0); //dialog的高
-    //获取当前时间方法
-    function GetDateTime() {
-      var getDate = new Date();
-      let dateYear = getDate.getFullYear(); //获取年
-      let dateMonth = getDate.getMonth() + 1; //获取月
-      let dateDate = getDate.getDate(); //获取当日
-      let dateHours = getDate.getHours(); //获取小时
-      let dateMinutes = getDate.getMinutes(); //获取分钟
-      let dateSeconds = getDate.getSeconds(); //获取秒
-      dateMonth = dateMonth < 10 ? "0" + dateMonth : dateMonth;
-      dateDate = dateDate < 10 ? "0" + dateDate : dateDate;
-      dateHours = dateHours < 10 ? "0" + dateHours : dateHours;
-      dateMinutes = dateMinutes < 10 ? "0" + dateMinutes : dateMinutes;
-      dateSeconds = dateSeconds < 10 ? "0" + dateSeconds : dateSeconds;
-      return (
-        dateYear +
-        "-" +
-        dateMonth +
-        "-" +
-        dateDate +
-        " " +
-        dateHours +
-        ":" +
-        dateMinutes +
-        ":" +
-        dateSeconds
-      );
-    }
+    const canvasKey = ref(0);
+    const { proxy } = getCurrentInstance();
+
     //表单数据
     const formData = reactive({
       title: "",
@@ -99,22 +84,26 @@ export default {
     };
     //提交表单数据
     const onSubmit = () => {
+      const child = proxy.$refs.canvasChildRef;
+      console.log(child);
+      if (child) {
+        child.saveCanvas();
+      }
       ElMessage({
         showClose: true,
         message: "卡片添加成功！",
         type: "success",
         center: true,
       });
-      reset();
-      closeDialog();
-      emit("addCardSuccess");
+      // closeDialog();
+      // emit("addCardSuccess");
     };
 
     watch(
-      () => props.dialogVisible,
-      (val) => {
-        dialogVisibleChild.value = val;
-        if (val) {
+      () => [props.dialogVisible, props.currentItem],
+      ([newDialogVisible, newCurrentItem]) => {
+        dialogVisibleChild.value = newDialogVisible;
+        if (newDialogVisible) {
           nextTick(() => {
             const dialog = canvasRef.value;
             if (dialog) {
@@ -123,7 +112,10 @@ export default {
             }
           });
         }
-      }
+        // 改变 key 来强制重新渲染 Canvas 组件
+        canvasKey.value++;
+      },
+      { deep: true }
     );
 
     return {
@@ -135,6 +127,7 @@ export default {
       canvasRef,
       dialogWidth,
       dialogHeight,
+      canvasKey,
     };
   },
   emits: ["closeDialog"],

@@ -15,6 +15,7 @@
         :style="{
           transform: `translateY(${index * (dotSize + dotSpacing)}px)`,
         }"
+        @click.stop="handleClick(item, index)"
       >
         <div
           class="left"
@@ -25,7 +26,7 @@
           }"
         ></div>
         <div class="right">
-          <div class="content">{{ item.content }}</div>
+          <div class="content">{{ item.title }}</div>
           <div class="time">{{ item.time }}</div>
         </div>
       </div>
@@ -157,6 +158,12 @@ export default defineComponent({
       }
     };
 
+    // 点击进入编辑界面
+    const handleClick = (item) => {
+      emit("clickItem", item);
+      console.log("handleClick", item);
+    };
+
     // 监听items变化
     watch(
       () => props.items,
@@ -171,6 +178,7 @@ export default defineComponent({
 
     return {
       dotRadius,
+      handleClick,
     };
   },
 });
